@@ -23,3 +23,4 @@
 Автор проекта:
 + Ссылка на [блог](https://maker-rus.ru/)
 + Ссылка на [группу ВК](https://vk.com/makerrus)
++ Ссылка на автора библиотеки для работы с vk api - [github](https://github.com/dimka665/vk)
