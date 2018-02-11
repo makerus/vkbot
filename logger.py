@@ -1,20 +1,20 @@
-import time
-#Логгер для бота
-class Log:
+from datetime import datetime
 
-    def getDateTime(self):
-        now = time.strftime("%H:%M")
-        date = time.strftime("%d:%m:%Y")
-        return "[" + date + "][" + now + "]"
 
-    def info(self, value):
-        date_now = self.getDateTime()
-        print(date_now+"[ИНФО]: "+value)
+def log(text):
+    output = "["+str(datetime.strftime(datetime.now(), "%x %H:%M"))+"]LOG: " + str(text) + "..."
+    log_info = open("debug.log", 'a', encoding="utf-8")
+    log_info.write(output+'\n')
+    log_info.close()
+    print(output)
 
-    def error(self, value):
-        date_now = self.getDateTime()
-        print(date_now+"[ОШИБКА]: "+value)
 
-    def action(self, value):
-        date_now = self.getDateTime()
-        print(date_now+"[ДЕЙСТВИЕ]: "+value)
+def error(text):
+    output = "["+str(datetime.strftime(datetime.now(), "%x %H:%M"))+"]ERROR: " + str(text) + "..."
+    log_error = open("error.log", 'a', encoding="utf-8")
+    log_error.write(output+'\n')
+    log_error.close()
+    print(output)
+
+
+
