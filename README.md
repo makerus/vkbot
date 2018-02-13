@@ -37,7 +37,7 @@ params - массив [arg1, arg2, arg3]
 В этой команде "привет" и "мир" - входные данные,
 где arg1 = привет, arg2 = мир
 поэтому params = ["привет", "мир"]
-""
+"""
 def speak(messages, api, params):
     
     user_id = messages['user_id']
