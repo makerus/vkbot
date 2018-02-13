@@ -139,7 +139,9 @@ class VkApi:
 
     """
     :param params: Параметры для метода Messages.send в API VK
-    :param peer: ID беседы
+    :param chat_id: ID беседы, указывается если ответить нужно в беседу
+    :param user_id: ID пользователя, указывается если нужно отправить ответ пользователю
+    :param optional: Словарь { 'key' : 'value' } с дополнительными параметрами из api vk
     :param timeout_activity: Время показа статуса "печатает"
     """
     def send(self, message, chat_id=0, user_id=0, optional='', timeout_activity=3):
@@ -186,7 +188,7 @@ class VkApi:
         return self.method("messages.get", {'count': count})
 
     """
-    :param method_name: Метод получаем информацию о пользователе в VK
+    :param method_name: Метод получает информацию о пользователе в VK
     :param fields: Поля которые необходимо получить
     :param user_ids: Идентификаторы пользователей через ","
     """
@@ -228,6 +230,7 @@ class VkApi:
                                 params.remove(cmd['name'])
 
                                 # Выполняем команду с дополнительными параметрами
+                                # Params - массив [arg1, arg2, arg3]
                                 msg_out = cmd['run'](msg, self, params)
                             else:
                                 #Выполняем команду без параметров
