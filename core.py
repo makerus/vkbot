@@ -15,7 +15,7 @@ class VkApi:
     :param version_vk: ПО УМОЛЧАНИЮ = 5.69, Версия api VK
     :param timeout: Максимальное время ответа в секундах, по умолчанию - 8 секунд.
     """
-    def __init__(self, client_id, email, password, scope, timeout=8, version_vk="5.69"):
+    def __init__(self, client_id, email, password, scope, timeout=8, version_vk="5.73"):
 
         logger.log("Инициализация бота")
 
