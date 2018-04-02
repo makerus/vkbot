@@ -1,1 +1,8 @@
+.idea/
 /.idea
+/config.py
+__pycache__/
+/__pycache__
+/debug.log
+/info.log
+/error.log

@@ -34,6 +34,10 @@ class VkApi:
         self.token = ""
         self.timeout = timeout
 
+        if not self.client_id or not self.email or not self.password:
+            logger.error("Не введены APP ID, EMAIL/ТЕЛЕФОН или ПАРОЛЬ!")
+            exit()
+
         self.api()
 
     def api(self):
@@ -67,13 +71,6 @@ class VkApi:
         # Подтверждаем разрешение доступа к нужным нам правам
         get_privileges = self.req_session.post(get_page_privileges.form['action'])
 
-        """
-        Проверяем на наличие ошибок в ответе, поиском по URL
-        Если ошибка есть, то выводим ее,
-        Заходим на гланую страницу, ищем и нажимаем кнопку выйти
-        Очищаем куки
-        Завершаем работу
-        """
         if get_privileges.url.find("error") >= 0:  # Проверяем на наличие ошибок
             logger.error("Ошибка авторизации")
             m_vk = self.req_session.get("https://m.vk.com")  # Заходим на главную страницу ВК
@@ -88,6 +85,9 @@ class VkApi:
 
         re_url = re.compile("=[a-z0-9]+[^&]", re.UNICODE)  # Если ошибок нет, то разбираем ответный URL
         get_token = re_url.search(get_privileges.url)  # Находим в нем токен, для доступа к api
+        if get_token is None:
+            logger.error("Неверенно введен логин или пароль...")
+            exit()
         self.token = get_token.group()[1:]  # Возвращаем токен
 
     def method(self, method_name, params):
@@ -106,20 +106,19 @@ class VkApi:
         url_command_api = self.method_action + method_name + "?"
         response = self.req_session.get(url_command_api, params=query)  # Отправляем наш GET запрос
 
-        # Проверяем какое количество элементов пришло в ответе
-        if isinstance(response.json()['response'], int):  # Если вернулось число, то возвращаем его
-            return response.json()['response']
-        # Если 1 элемент, то возвращаем первый элемент
-        elif type(response.json()) != 'int' and len(response.json()['response']) == 1:
-            return response.json()['response'][0]
-        # Если несколько элементов, то возвращаем их в формате JSON
-        elif 'response' not in response.json():
+        # 2 Ответа: response, error
+        if 'response' in response.json():
+            if len(response.json()) > 1:
+                return response.json()['response'][0]
+            else:
+                return response.json()['response']
+        elif 'error' in response.json():
             return response.json()
-        # Если вернулось, что-то другое (число), возвращаем ответ
         else:
-            return response.json()['response']
+            logger.error("Ошибка получения ответа")
+            logger.log(response.json())
 
-    def send(self, message, chat_id=0, user_id=0, optional='', timeout_activity=3):
+    def send(self, message, chat_id=0, user_id=0, optional=None, timeout_activity=3):
         """
             :param message: Текст сообщения
             :param chat_id: ID беседы, указывается если ответить нужно в беседу
@@ -165,7 +164,7 @@ class VkApi:
         """
         return self.method("messages.get", {'count': count})
 
-    def get_user(self, user_ids, fields=""):
+    def get_user(self, user_ids, fields=None):
         """
             Метод получает информацию о пользователе в VK
             :param fields: Поля которые необходимо получить
