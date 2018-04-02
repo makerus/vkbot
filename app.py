@@ -7,8 +7,7 @@ bot = VkApi(config.CLIENT_ID, config.EMAIL, config.PASSWORD, config.SCOPE)
 
 logger.log("Подключение команд")
 
-#Тут указать команды
-commands = [speak]
+commands = [speak]  #Тут указать команды
 
 list_commands = []
 

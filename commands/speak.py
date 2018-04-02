@@ -15,8 +15,5 @@ def speak(messages, api, params):
     return message_out
 
 
-#Объект команды
-cmd = {}
-
-#Возращаем сформированную команду
-cmd.update({'name': "/скажи", 'run': speak})
+cmd = {}  #Объект команды
+cmd.update({'name': "/скажи", 'run': speak})  #Возращаем сформированную команду
