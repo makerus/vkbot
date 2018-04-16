@@ -1,6 +1,7 @@
 import re
 import random
 import time
+import json
 
 import requests
 from bs4 import BeautifulSoup
@@ -33,9 +34,10 @@ class VkApi:
         self.req_session = requests.Session()
         self.token = ""
         self.timeout = timeout
+        self.list_messages = json.load(open('messages.json', encoding='utf-8'))
 
         if not self.client_id or not self.email or not self.password:
-            logger.error("Не введены APP ID, EMAIL/ТЕЛЕФОН или ПАРОЛЬ!")
+            logger.error(self.list_messages['no_input'])
             exit()
 
         self.api()
@@ -72,7 +74,7 @@ class VkApi:
         get_privileges = self.req_session.post(get_page_privileges.form['action'])
 
         if get_privileges.url.find("error") >= 0:  # Проверяем на наличие ошибок
-            logger.error("Ошибка авторизации")
+            logger.error(self.list_messages['error_auth'])
             m_vk = self.req_session.get("https://m.vk.com")  # Заходим на главную страницу ВК
             m_vk_page = BeautifulSoup(m_vk.text, "html.parser")
             m_vk_links = m_vk_page.find_all('a')
@@ -86,7 +88,7 @@ class VkApi:
         re_url = re.compile("=[a-z0-9]+[^&]", re.UNICODE)  # Если ошибок нет, то разбираем ответный URL
         get_token = re_url.search(get_privileges.url)  # Находим в нем токен, для доступа к api
         if get_token is None:
-            logger.error("Неверенно введен логин или пароль...")
+            logger.error(self.list_messages['invalid_input'])
             exit()
         self.token = get_token.group()[1:]  # Возвращаем токен
 
@@ -115,7 +117,7 @@ class VkApi:
         elif 'error' in response.json():
             return response.json()
         else:
-            logger.error("Ошибка получения ответа")
+            logger.error(self.list_messages['error_response'])
             logger.log(response.json())
 
     def send(self, message, chat_id=0, user_id=0, optional=None, timeout_activity=3):
@@ -209,5 +211,5 @@ class VkApi:
                             self.reading_messages(msg)  # Помечаем сообщение как прочитанное
             time.sleep(self.timeout)  # Ждем таймаут
         except KeyboardInterrupt:
-            logger.log("Завершение работы")
+            logger.log(self.list_messages['exit'])
             exit()
