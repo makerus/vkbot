@@ -170,7 +170,7 @@ class VkApi:
             :param fields: Поля которые необходимо получить
             :param user_ids: Идентификаторы пользователей через ","
         """
-        if len(fields) > 0:
+        if fields is not None:
             return self.method("users.get", {'user_ids': user_ids, fields: fields})
         else:
             return self.method("users.get", {'user_ids': user_ids})
