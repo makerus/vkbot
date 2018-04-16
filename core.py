@@ -150,7 +150,7 @@ class VkApi:
         if user_id > 0:
             params.update({'user_id': user_id})
 
-        if optional != '':
+        if optional is not None:
             params.update(optional)
 
         params.update({'message': message})
@@ -171,9 +171,11 @@ class VkApi:
             :param user_ids: Идентификаторы пользователей через ","
         """
         if fields is not None:
-            return self.method("users.get", {'user_ids': user_ids, fields: fields})
+            response = self.method("users.get", {'user_ids': user_ids, fields: fields})
+            return response[0]
         else:
-            return self.method("users.get", {'user_ids': user_ids})
+            response = self.method("users.get", {'user_ids': user_ids})
+            return response[0]
 
     def reading_messages(self, msg):
         """
