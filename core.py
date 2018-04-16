@@ -35,6 +35,7 @@ class VkApi:
         self.token = ""
         self.timeout = timeout
         self.list_messages = json.load(open('messages.json', encoding='utf-8'))
+        self.data = {}  # Внутренний массив данных
 
         if not self.client_id or not self.email or not self.password:
             logger.error(self.list_messages['no_input'])
@@ -222,20 +223,31 @@ class VkApi:
             else:
                 return False
 
-    def listen(self, messages, list_commands):
+    def start_middleware(self, message, list_middleware):
+        """
+        Поочередный запуск обработчиков
+        :param message: Сообщение
+        :param list_middleware: Список обработчиков
+        """
+
+        for middleware in list_middleware:
+            middleware(messages=message, api=self)
+
+    def listen(self, messages, list_commands, list_middlewares):
         """
             Метод для обработки сообщений
             :param messages: Список полученных сообщений
             :param list_commands: Список команд
+            :param list_middlewares: Список обработчиков
         """
         try:
             for msg in messages['items']:
-                if not self.reading_messages(msg):
-                    for cmd in list_commands:  # Проходимся по списку команд
-                        msg_out = self.check_command_message(msg, list_commands)  # Проверяем наличие команды
-                        if msg_out:
-                            self.send(str(msg_out), msg['chat_id'])  # Отправляем ответ в беседу
-                        self.reading_messages(msg)  # Помечаем сообщение как прочитанное
+                if not self.check_read_message(msg):  # Не прочитано ли сообщение?
+                    msg_out = self.check_command_message(msg, list_commands)  # Проверяем наличие команды
+                    if msg_out:
+                        self.send(str(msg_out), msg['chat_id'])  # Отправляем ответ в беседу
+                    self.start_middleware(msg, list_middlewares)  #Запускаем обработчик
+                    self.reading_messages(msg)  # Помечаем сообщение как прочитанное
             time.sleep(self.timeout)  # Ждем таймаут
         except KeyboardInterrupt:
             logger.log(self.list_messages['exit'])
