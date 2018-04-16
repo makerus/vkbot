@@ -189,6 +189,39 @@ class VkApi:
             'start_message_id': int(msg['id'])
         })
 
+    def check_read_message(self, msg):
+        """
+        Проверка статуса сообщения (прочитано / не прочитано)
+        :param msg: Сообщение
+        :return: Boolean (True/False) True - прочитано, False - не прочитано
+        """
+
+        if int(msg['read_state']) == 1:
+            return True
+        else:
+            return False
+
+    def check_command_message(self, msg, list_commands):
+        """
+        Проверка наличия команды в сообщении
+        :param msg: Сообщение
+        :param list_commands: Список команд
+        :return: String - результат выполнения команды, Boolean(False) - не найдена команда
+        """
+
+        for cmd in list_commands:  # Проходимся по списку команд
+            if str(msg).find(cmd['name']) > 0:  # Если в сообщении есть команда
+                params = str(msg['body']).split(' ')  # Разбиваем команду по пробелам
+                if len(params) > 1:
+                    params.remove(cmd['name'])  # Формируем параметры
+                    msg_out = cmd['run'](msg, self, params)  # Выполняем команду с параметрами
+                else:
+                    msg_out = cmd['run'](msg, self)  # Выполняем команду без параметров
+
+                return msg_out
+            else:
+                return False
+
     def listen(self, messages, list_commands):
         """
             Метод для обработки сообщений
@@ -197,18 +230,12 @@ class VkApi:
         """
         try:
             for msg in messages['items']:
-                if int(msg['read_state']) == 0:  # Если сообщение не прочитано
+                if not self.reading_messages(msg):
                     for cmd in list_commands:  # Проходимся по списку команд
-                        if str(msg).find(cmd['name']) > 0:  # Если в сообщении есть команда
-                            params = str(msg['body']).split(' ')  # Разбиваем команду по пробелам
-                            if len(params) > 1:
-                                params.remove(cmd['name'])  # Формируем параметры
-                                msg_out = cmd['run'](msg, self, params)  # Выполняем команду с параметрами
-                            else:
-                                msg_out = cmd['run'](msg, self)  # Выполняем команду без параметров
-
+                        msg_out = self.check_command_message(msg, list_commands)  # Проверяем наличие команды
+                        if msg_out:
                             self.send(str(msg_out), msg['chat_id'])  # Отправляем ответ в беседу
-                            self.reading_messages(msg)  # Помечаем сообщение как прочитанное
+                        self.reading_messages(msg)  # Помечаем сообщение как прочитанное
             time.sleep(self.timeout)  # Ждем таймаут
         except KeyboardInterrupt:
             logger.log(self.list_messages['exit'])
