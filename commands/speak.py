@@ -10,7 +10,6 @@ def speak(messages, api, params):
     user = api.get_user(user_id)
 
     phrase = str(" ".join(params))
-
     message_out = str(user['first_name']) + ", " + phrase
     return message_out
 
