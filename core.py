@@ -233,7 +233,7 @@ class VkApi:
         for middleware in list_middleware:
             middleware(messages=message, api=self)
 
-    def listen(self, messages, list_commands, list_middlewares):
+    def listen(self, messages, list_commands, list_middlewares=None):
         """
             Метод для обработки сообщений
             :param messages: Список полученных сообщений
@@ -246,7 +246,8 @@ class VkApi:
                     msg_out = self.check_command_message(msg, list_commands)  # Проверяем наличие команды
                     if msg_out:
                         self.send(str(msg_out), msg['chat_id'])  # Отправляем ответ в беседу
-                    self.start_middleware(msg, list_middlewares)  #Запускаем обработчик
+                    if list_middlewares:  # Если есть обработчики
+                        self.start_middleware(msg, list_middlewares)  # Запускаем обработчик
                     self.reading_messages(msg)  # Помечаем сообщение как прочитанное
             time.sleep(self.timeout)  # Ждем таймаут
         except KeyboardInterrupt:
