@@ -174,7 +174,7 @@ class VkApi:
             :param user_ids: Идентификаторы пользователей через ","
         """
         if fields is not None:
-            response = self.method("users.get", {'user_ids': user_ids, fields: fields})
+            response = self.method("users.get", {'user_ids': user_ids, 'fields': fields})
             return response[0]
         else:
             response = self.method("users.get", {'user_ids': user_ids})
