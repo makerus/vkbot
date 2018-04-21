@@ -220,7 +220,7 @@ class VkApi:
                     msg_out = cmd['run'](msg, self)  # Выполняем команду без параметров
 
                 return msg_out
-            return False
+        return False
 
     def start_middleware(self, message, list_middleware):
         """
