@@ -1,3 +1,5 @@
 requests
 beautifulsoup4
 utils
+pymongo
+vk-api-boroda34
