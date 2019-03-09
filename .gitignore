@@ -7,3 +7,4 @@ __pycache__/
 /info.log
 /error.log
 logs/
+.token
